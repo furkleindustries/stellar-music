@@ -1,0 +1,4 @@
+node_modules
+dist/
+web-audio-samples*
+*.wav

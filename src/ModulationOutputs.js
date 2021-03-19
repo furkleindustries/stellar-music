@@ -1,0 +1,16 @@
+export const ModulationOutputs = {
+  Bpm: 'Bpm',
+  Attack: 'Attack',
+  Release: 'Release',
+  GlobalFilter: 'GlobalFilter',
+  ReverbGain: 'ReverbGain',
+  ReverbMorph: 'ReverbMorph',
+  WaveformMorph: 'WaveformMorph',
+  DelayTime: 'DelayTime',
+  DelayFeedback: 'DelayFeedback',
+  DelayGain: 'DelayGain',
+  Distortion: 'Distortion',
+  Compressor: 'Compressor',
+  LocalGain: 'LocalGain',
+  GlobalGain: 'GlobalGain',
+};
