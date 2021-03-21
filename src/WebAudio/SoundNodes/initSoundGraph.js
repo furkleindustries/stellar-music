@@ -1,6 +1,6 @@
 import {
   beginSoundLoop,
-} from './beginSoundLoop';
+} from '../beginSoundLoop';
 import {
   generateAudioGraphAndCallbacks,
 } from './generateAudioGraphAndCallbacks';
@@ -8,27 +8,31 @@ import {
 export const initSoundGraph = ({
   audioContext,
   data,
-  notes,
   registerModulationNodes,
   waveforms,
 }) => {
   const callbacks = generateAudioGraphAndCallbacks({
     audioContext,
     data,
-    notes,
     registerModulationNodes,
     waveforms,
   });
 
+  const {
+    destroy,
+    getBpm,
+    update,
+  } = callbacks;
+
   const intervalId = beginSoundLoop({
     audioContext,
     data,
-    notes,
-    registerModulationNodes,
+    getBpm,
+    update,
   });
 
   return () => {
     clearInterval(intervalId);
-    callbacks.forEach(({ destroy }) => destroy());
+    destroy();
   };
 };

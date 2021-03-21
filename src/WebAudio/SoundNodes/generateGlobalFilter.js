@@ -3,7 +3,9 @@ export const generateGlobalFilter = (
   globalGain,
   type = 'lowpass',
 ) => {
-  audioContext.createBiquadFilter();
+  const globalFilter = audioContext.createBiquadFilter();
   globalFilter.type = type;
   globalFilter.connect(globalGain);
+
+  return globalFilter;
 };

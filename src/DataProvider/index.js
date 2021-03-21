@@ -1,7 +1,8 @@
-import React from 'react';
 import {
   LocaleContext,
-} from '../LocaleContext';
+} from './LocaleContext';
+
+import React from 'react';
 
 export const DataProvider = ({
   children,

@@ -1,16 +1,15 @@
 import {
   ReactAudioContext,
-} from '../AudioProvider';
+} from '../WebAudio/ReactAudioContext';
 import {
   initSoundGraph,
-} from '../initSoundGraph';
+} from '../WebAudio/SoundNodes/initSoundGraph';
 
 import React from 'react';
 
 export const Oscillators = ({
   data,
   defaults,
-  notes,
   registerModulationNodes,
 }) => {
   const audioContext = React.useContext(ReactAudioContext);
@@ -19,7 +18,6 @@ export const Oscillators = ({
     audioContext,
     defaults,
     data,
-    notes,
     registerModulationNodes,
     waveforms: [
       'sine',

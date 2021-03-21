@@ -2,8 +2,8 @@ import {
   defaultModulationRoutings,
 } from './defaultModulationRoutings';
 import {
-  getSoundStateFrame,
-} from './getSoundStateFrame';
+  getDataSelector,
+} from './getDataSelector';
 import {
   ModulationOutputTypes,
 } from './ModulationOutputTypes';
@@ -25,7 +25,6 @@ import {
 export const generateModulationNodes = ({
   audioContext,
   data,
-  notes,
   nodes,
 }) => {
   const {
@@ -34,35 +33,61 @@ export const generateModulationNodes = ({
   } = defaultModulationRoutings;
   
   const modulators = Object.keys(defaultMods).map((modIdx) => {
+    const currentMod = defaultMods[modIdx];
+    currentMod.id = modIdx;
+    const modType = currentMod.type;
+    let node = null;
     if (defaultMods[modIdx].type === ModulationTypes.ConstantSource) {
       const constantSource = audioContext.createConstantSource();
       constantSource.offset.value = -1;
-      return constantSource;
-    } else if (defaultMods[modIdx].type === ModulationTypes.External) {
-      // ???
-    } else if (defaultMods[modIdx].type === ModulationTypes.LFO) {
+      node = constantSource;
+    } else if (modType === ModulationTypes.Extern) {
+      console.log('TODO: implement Extern routing');
+      return null;
+    } else if (modType === ModulationTypes.LFO) {
       const lfo = audioContext.createOscillator();
       lfo.frequency.value = 1;
       lfo.start();
-      return lfo;
-    } else if (defaultMods[modIdx].type === ModulationTypes.WhiteNoise) {
-      return createWhiteNoiseGenerator();
-    } else if (defaultMods[modIdx].type === ModulationTypes.BrownNoise) {
-      return createBrownNoiseGenerator();
-    } else if (defaultMods[modIdx].type === ModulationTypes.PinkNoise) {
-      return createPinkNoiseGenerator();
+      node = lfo;
+    } else if (modType === ModulationTypes.WhiteNoise) {
+      node = createWhiteNoiseGenerator(audioContext);
+    } else if (modType === ModulationTypes.BrownNoise) {
+      node = createBrownNoiseGenerator(audioContext);
+    } else if (modType === ModulationTypes.PinkNoise) {
+      node = createPinkNoiseGenerator(audioContext);
     }
 
-    throw new Error();
-  });
+    return {
+      ...currentMod,
+      node,
+    };
+  }).filter(Boolean);
 
   const destinations = Object.keys(defaultDests).map((destIdx, listIdx) => {
     const destination = defaultDests[destIdx];
+    destination.id = destIdx;
     const modulator = modulators[listIdx];
 
-    if (destination.type === ModulationOutputTypes.ParameterModulation) {
+    if (!destination ||
+      !destination.output ||
+      !modulator ||
+      modulator.type === ModulationTypes.Extern)
+    {
+      return null;
+    }
+
+     if (destination.type === ModulationOutputTypes.ParameterModulation ||
+      destination.type === ModulationOutputTypes.Extern)
+    {
+      const dataSelector = getDataSelector({
+        data,
+        destination,
+        modulator,
+      });
+
       routeModulationToParam({
         data,
+        dataSelector,
         modulator,
         destination,
         nodes,
@@ -74,7 +99,9 @@ export const generateModulationNodes = ({
         nodes,
       });
     }
-  });
+
+    return destination;
+  }).filter(Boolean);
 
   return {
     modulators,

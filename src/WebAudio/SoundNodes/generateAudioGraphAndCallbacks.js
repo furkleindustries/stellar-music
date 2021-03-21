@@ -1,4 +1,7 @@
 import {
+  createReverbs,
+} from './createReverbs';
+import {
   generateCompressor,
 } from './generateCompressor';
 import {
@@ -12,7 +15,7 @@ import {
 } from './generateGlobalGain';
 import {
   generateModulationNodes,
-} from './generateModulationNodes';
+} from '../ModulationNodes/generateModulationNodes';
 import {
   generateSoundOscillators,
 } from './generateSoundOscillators'
@@ -20,13 +23,12 @@ import {
   generateWaveShaper,
 } from './generateWaveShaper';
 import {
-  ModulationOutputTypes,
-} from './ModulationOutputTypes';
+  ModulationOutputs,
+} from '../ModulationNodes/ModulationOutputs';
 
 export const generateAudioGraphAndCallbacks = ({
   audioContext,
   data,
-  notes,
   registerModulation,
   waveforms,
 }) => {
@@ -77,14 +79,7 @@ export const generateAudioGraphAndCallbacks = ({
   );
 
   let reverbs = [];
-  createReverbs(
-    audioContext,
-    [
-      'https://meteoricon.s3.amazonaws.com/ir_lime_kiln.wav',
-      'https://meteoricon.s3.amazonaws.com/ir_reactor_hall.wav',
-      'https://meteoricon.s3.amazonaws.com/ir_snow.wav',
-    ],
-  ).then((convolvers) => {
+  createReverbs(audioContext).then((convolvers) => {
     reverbs.push(...convolvers.map((convolver) => ({
       convolver,
       convolverGain: audioContext.createGain(),
@@ -104,23 +99,40 @@ export const generateAudioGraphAndCallbacks = ({
   });
 
   const nodes = {
-    [ModulationOutputTypes.GlobalGain]: globalGain,
-    [ModulationOutputTypes.Filter]: globalFilter,
-    [ModulationOutputTypes.WaveShaper]: waveShaper,
-    [ModulationOutputTypes.Compressor]: compressor,
-    [ModulationOutputTypes.Delay]: delay,
-    [ModulationOutputTypes.DelayFilter]: delayFilter,
-    [ModulationOutputTypes.DelayGain]: delayGain,
-    [ModulationOutputTypes.DelayFeedback]: delayFeedback,
+    [ModulationOutputs.GlobalGain]: globalGain,
+    [ModulationOutputs.GlobalFilter]: globalFilter,
+    [ModulationOutputs.WaveformMorph]: waveShaper,
+    [ModulationOutputs.Compressor]: compressor,
+    [ModulationOutputs.DelayTime]: delay,
+    [ModulationOutputs.DelayFilter]: delayFilter,
+    [ModulationOutputs.DelayGain]: delayGain,
+    [ModulationOutputs.DelayFeedback]: delayFeedback,
     SoundOscillators: soundOscillators,
     Reverbs: reverbs,
   };
 
-  generateModulationNodes({
+  const {
+    modulators,
+    destinations,
+  } = generateModulationNodes({
     audioContext,
     data,
-    notes,
     registerModulation,
     nodes,
   });
+
+  return {
+    update: () => {
+      console.log('updating');
+    },
+
+    getBpm: () => {
+      const destIdx = destinations.find(({ output }) => output === ModulationOutputs.Bpm).id;
+      return modulators.find(({ destination }) => destination === destIdx).node.value;
+    },
+
+    destroy: () => {
+
+    },
+  };
 };

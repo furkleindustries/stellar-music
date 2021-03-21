@@ -1,4 +1,4 @@
-import { delayFractions } from './delayFractions';
+import { delayFractions } from '../SoundNodes/delayFractions';
 import { ModulationOutputs } from './ModulationOutputs';
 import { ModulationOutputTypes } from './ModulationOutputTypes';
 import { ModulationTypes } from './ModulationTypes';
@@ -49,7 +49,8 @@ export const defaultModulationRoutings = {
 
     'A7': {
       input: 'widget',
-      type: ModulationTypes.External,
+      type: ModulationTypes.Extern,
+      extern: () => {},
       destination: 'B7',
       range: [
         'sine',
@@ -125,8 +126,9 @@ export const defaultModulationRoutings = {
 
   destinations: {
     'B1': {
-      type: ModulationOutputTypes.ParameterModulation,
+      type: ModulationOutputTypes.Extern,
       output: ModulationOutputs.Bpm,
+      extern: () => {},
     },
 
     'B2': {
@@ -150,18 +152,21 @@ export const defaultModulationRoutings = {
     },
 
     'B6': {
-      type: ModulationOutputTypes.ParameterModulation,
+      type: ModulationOutputTypes.Extern,
       output: ModulationOutputs.ReverbMorph,
+      extern: () => {},
     },
 
     'B7': {
-      type: ModulationOutputTypes.ParameterModulation,
+      type: ModulationOutputTypes.Extern,
       output: ModulationOutputs.WaveformMorph,
+      extern: () => {},
     },
 
     'B8': {
-      type: ModulationOutputTypes.ParameterModulation,
+      type: ModulationOutputTypes.Extern,
       output: ModulationOutputs.DelayTime,
+      extern: () => {},
     },
 
     'B9': {
@@ -175,8 +180,9 @@ export const defaultModulationRoutings = {
     },
 
     'B11': {
-      type: ModulationOutputTypes.ParameterModulation,
+      type: ModulationOutputTypes.Extern,
       output: ModulationOutputs.Distortion,
+      extern: () => {},
     },
 
     'B12': {

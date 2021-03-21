@@ -30,4 +30,11 @@ export const generateDelayNodes = (
   // Connect the feedback loop back to the delay line node in a cycle
   // attenuated by the feedback gain setting.
   delayFeedback.connect(delay);
+
+  return {
+    delay,
+    delayGain,
+    delayFilter,
+    delayFeedback,
+  };
 };

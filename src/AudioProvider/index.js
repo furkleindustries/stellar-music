@@ -1,23 +1,28 @@
 import {
+  getAudioContext,
+} from './getAudioContext';
+import {
   ModulationContext,
-} from '../ModulationContext';
+} from '../WebAudio/ModulationNodes/ModulationContext';
 import {
   ReactAudioContext,
-} from '../ReactAudioContext';
+} from '../WebAudio/ReactAudioContext';
 
 import React from 'react';
 
-export const AudioProvider = (children) => {
+export const AudioProvider = ({ children }) => {
   const [ modulationState, setModulationState ] = [];
 
   const audioCtx = getAudioContext();
 
-  <ReactAudioContext.Provider value={audioCtx}>
-    <ModulationContext.Provider value={modulationState}>
-      {React.cloneElement(
-        children,
-        { registerModulationNodes: setModulationState },
-      )}
-    </ModulationContext.Provider>
-  </ReactAudioContext.Provider>
+  return (
+    <ReactAudioContext.Provider value={audioCtx}>
+      <ModulationContext.Provider value={modulationState}>
+        {React.cloneElement(
+          children,
+          { registerModulationNodes: setModulationState },
+        )}
+      </ModulationContext.Provider>
+    </ReactAudioContext.Provider>
+  );
 };

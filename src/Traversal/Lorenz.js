@@ -1,6 +1,6 @@
 import {
   Vector,
-} from './Vector';
+} from '../Tonics/Vector';
 
 export const sigma = 10;
 export const rho = 28;

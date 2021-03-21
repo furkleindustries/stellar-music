@@ -4,5 +4,5 @@ export const ModulationTypes = {
   BrownNoise: 'BrownNoise',
   PinkNoise: 'PinkNoise',
   LFO: 'LFO',  
-  External: 'External',
+  Extern: 'Extern',
 };

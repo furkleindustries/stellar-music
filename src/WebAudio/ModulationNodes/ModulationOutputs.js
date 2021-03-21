@@ -7,6 +7,7 @@ export const ModulationOutputs = {
   ReverbMorph: 'ReverbMorph',
   WaveformMorph: 'WaveformMorph',
   DelayTime: 'DelayTime',
+  DelayFilter: 'DelayFilter',
   DelayFeedback: 'DelayFeedback',
   DelayGain: 'DelayGain',
   Distortion: 'Distortion',

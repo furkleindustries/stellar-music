@@ -1,32 +1,29 @@
 import {
+  AudioProvider,
+} from '../AudioProvider';
+import {
   DataProvider,
 } from '../DataProvider';
 import {
   getDataPromise,
-} from '../getDataPromise';
+} from '../DataProvider/getDataPromise';
 import {
   LocaleContext,
-} from '../LocaleContext';
+} from '../DataProvider/LocaleContext';
 import {
   LocaleInput,
 } from '../LocaleInput';
-import {
-  notes,
-} from '../notes';
-import {
-  ModulationContext,
-} from '../ModulationContext';
 import {
   PlayerPiano,
 } from '../PlayerPiano';
 import {
   PlayingContext,
-} from '../PlayingContext';
+} from '../WebAudio/PlayingContext';
 
 import React from 'react';
 
 export const App = ({
-  normalizer = (val) => val,
+  normalizer = (val) => val.ob,
 }) => {
   const [ playing, setPlaying ] = React.useState(false);
   const play = () => {
@@ -51,11 +48,12 @@ export const App = ({
         <LocaleContext.Provider value={locale}>
           <DataProvider getDataPromise={locale && playing ? getDataPromise : null}>
             {(dataPromise) => (
-              <PlayerPiano
-                dataPromise={dataPromise}
-                normalizer={normalizer}
-                notes={notes}
-              />
+              <AudioProvider>
+                <PlayerPiano
+                  dataPromise={dataPromise}
+                  normalizer={normalizer}
+                />
+              </AudioProvider>
             )}
           </DataProvider>
         </LocaleContext.Provider>

@@ -1,3 +1,7 @@
+import {
+  makeDistortionCurve,
+} from './makeDistortionCurve';
+
 export const generateWaveShaper = (
   audioContext,
   globalFilter,

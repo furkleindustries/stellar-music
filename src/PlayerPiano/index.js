@@ -6,10 +6,10 @@ import {
 } from '../Oscillators';
 import {
   PlayingContext,
-} from '../PlayingContext';
+} from '../WebAudio/PlayingContext';
 import {
   ReactAudioContext,
-} from '../AudioProvider';
+} from '../WebAudio/ReactAudioContext';
 
 import React from 'react';
 
@@ -18,7 +18,6 @@ export const PlayerPiano = (props) => {
     dataPromise,
     defaults = {},
     normalizer,
-    notes,
   } = (props || { defaults: {} });
 
   if (!dataPromise) {
@@ -54,7 +53,6 @@ export const PlayerPiano = (props) => {
           playing && loaded ?
             <Oscillators
               defaults={defaults}
-              notes={notes}
               data={data}
             /> :
             null

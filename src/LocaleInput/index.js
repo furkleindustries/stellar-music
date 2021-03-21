@@ -1,5 +1,8 @@
+import {
+  LocaleContext,
+} from '../DataProvider/LocaleContext';
+
 import React from 'react';
-import { LocaleContext } from '../LocaleContext';
 
 export const LocaleInput = ({ onChange }) => {
   const locale = React.useContext(LocaleContext);
