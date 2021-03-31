@@ -1,12 +1,26 @@
-import { delayFractions } from '../SoundNodes/delayFractions';
-import { ModulationOutputs } from './ModulationOutputs';
-import { ModulationOutputTypes } from './ModulationOutputTypes';
-import { ModulationTypes } from './ModulationTypes';
+import {
+  beatFractions,
+} from '../beatFractions';
+import {
+  makeDistortionCurve,
+} from '../SoundNodes/makeDistortionCurve';
+import {
+  ModulationOutputs,
+} from './ModulationOutputs';
+import {
+  ModulationOutputTypes,
+} from './ModulationOutputTypes';
+import {
+  ModulationTypes,
+} from './ModulationTypes';
+import {
+  Note,
+} from '@tonaljs/tonal';
 
 export const defaultModulationRoutings = {
   modulators: {
     'A1': {
-      input: [ 'feelsLikeC', 'widget' ],
+      input: 'widget',
       type: ModulationTypes.ConstantSource,
       destination: 'B1',
       range: [ 45, 180 ],
@@ -27,14 +41,14 @@ export const defaultModulationRoutings = {
     },
 
     'A4': {
-      input: [ 'windSpeedKPH', 'widget' ],
+      input: 'widget',
       type: ModulationTypes.ConstantSource,
       destination: 'B4',
       range: 'percent',
     },
 
     'A5': {
-      input: [ 'precipMM', 'widget' ],
+      input: 'widget',
       type: ModulationTypes.ConstantSource,
       destination: 'B5',
       range: 'percent',
@@ -42,7 +56,8 @@ export const defaultModulationRoutings = {
 
     'A6': {
       input: 'widget',
-      type: ModulationTypes.ConstantSource,
+      type: ModulationTypes.Extern,
+      extern: (data) => data,
       destination: 'B6',
       range: 'percent',
     },
@@ -50,7 +65,7 @@ export const defaultModulationRoutings = {
     'A7': {
       input: 'widget',
       type: ModulationTypes.Extern,
-      extern: () => {},
+      extern: (data) => data,
       destination: 'B7',
       range: [
         'sine',
@@ -64,26 +79,27 @@ export const defaultModulationRoutings = {
       input: 'widget',
       type: ModulationTypes.ConstantSource,
       destination: 'B8',
-      range: delayFractions,
+      range: beatFractions,
     },
 
     'A9': {
-      input: [ 'spressureMB', 'widget' ],
+      input: [ 'widget' ],
       type: ModulationTypes.ConstantSource,
       destination: 'B9',
       range: 'percent',
     },
 
     'A10': {
-      input: [ 'spressureMB', 'widget' ],
+      input: 'widget',
       type: ModulationTypes.ConstantSource,
       destination: 'B10',
       range: 'percent',
     },
 
     'A11': {
-      input: [ 'humidity', 'widget' ],
-      type: ModulationTypes.ConstantSource,
+      input: 'widget',
+      type: ModulationTypes.Extern,
+      extern: (data) => data,
       destination: 'B11',
       range: 'percent',
     },
@@ -96,20 +112,21 @@ export const defaultModulationRoutings = {
     },
 
     'A13': {
-      input: null,
+      input: 'widget',
       type: ModulationTypes.ConstantSource,
       destination: 'B13',
       range: 'percent',
     },
 
     'A14': {
-      input: null,
+      input: 'widget',
       type: ModulationTypes.ConstantSource,
       destination: 'B14',
       range: 'percent',
     },
 
     'A15': {
+      input : 'widget',
       type: ModulationTypes.BrownNoise,
       destination: 'B15',
       range: [ -60, 0 ],
@@ -117,18 +134,67 @@ export const defaultModulationRoutings = {
     },
 
     'A16': {
+      input : 'widget',
       type: ModulationTypes.ConstantSource,
       destination: 'B16',
       range: [ -60, 0 ],
       label: 'dB',
     },
+
+    'OM1': {
+      type: ModulationTypes.ConstantSource,
+      destination: 'OD1',
+      range: [ Note.freq('C0'), Note.freq('B8') ],
+      label: 'Hz',
+    },
+
+    'OM2': {
+      type: ModulationTypes.ConstantSource,
+      destination: 'OD2',
+      range: [ Note.freq('C0'), Note.freq('B8') ],
+      label: 'Hz',
+    },
+
+    'OM3': {
+      type: ModulationTypes.ConstantSource,
+      destination: 'OD3',
+      range: [ Note.freq('C0'), Note.freq('B8') ],
+      label: 'Hz',
+    },
+
+    'OM4': {
+      type: ModulationTypes.ConstantSource,
+      destination: 'OD4',
+      range: [ Note.freq('C0'), Note.freq('B8') ],
+      label: 'Hz',
+    },
+
+    'OM5': {
+      type: ModulationTypes.ConstantSource,
+      destination: 'OD5',
+      range: [ Note.freq('C0'), Note.freq('B8') ],
+      label: 'Hz',
+    },
+
+    'OM6': {
+      type: ModulationTypes.ConstantSource,
+      destination: 'OD6',
+      range: [ Note.freq('C0'), Note.freq('B8') ],
+      label: 'Hz',
+    },
+
+    'OM7': {
+      type: ModulationTypes.ConstantSource,
+      destination: 'OD7',
+      range: [ Note.freq('C0'), Note.freq('B8') ],
+      label: 'Hz',
+    },
   },
 
   destinations: {
     'B1': {
-      type: ModulationOutputTypes.Extern,
+      type: ModulationOutputTypes.ParameterModulation,
       output: ModulationOutputs.Bpm,
-      extern: () => {},
     },
 
     'B2': {
@@ -154,19 +220,31 @@ export const defaultModulationRoutings = {
     'B6': {
       type: ModulationOutputTypes.Extern,
       output: ModulationOutputs.ReverbMorph,
-      extern: () => {},
+      extern: ({
+        bpm,
+        chord,
+        data,
+        nodes,
+      }) => {
+      },
     },
 
     'B7': {
       type: ModulationOutputTypes.Extern,
       output: ModulationOutputs.WaveformMorph,
-      extern: () => {},
+      extern: ({
+        bpm,
+        chord,
+        data,
+        nodes,
+      }) => {
+
+      },
     },
 
     'B8': {
-      type: ModulationOutputTypes.Extern,
+      type: ModulationOutputTypes.ParameterModulation,
       output: ModulationOutputs.DelayTime,
-      extern: () => {},
     },
 
     'B9': {
@@ -182,7 +260,12 @@ export const defaultModulationRoutings = {
     'B11': {
       type: ModulationOutputTypes.Extern,
       output: ModulationOutputs.Distortion,
-      extern: () => {},
+      extern: ({
+        data,
+        nodes,
+      }) => {
+        nodes[ModulationOutputs.Distortion].curve = makeDistortionCurve(data);
+      },
     },
 
     'B12': {
@@ -191,23 +274,58 @@ export const defaultModulationRoutings = {
     },
 
     'B13': {
-      type: ModulationOutputTypes.Sound,
-      output: ModulationOutputs.LocalGain,
+      type: ModulationOutputTypes.ParameterModulation,
+      output: ModulationOutputs.Decay,
     },
 
     'B14': {
       type: ModulationOutputTypes.ParameterModulation,
-      output: null,
+      output: ModulationOutputs.Sustain,
     },
 
     'B15': {
-      type: ModulationOutputTypes.ParameterModulation,
-      output: null,
+      type: ModulationOutputTypes.SoundModulation,
+      output: ModulationOutputs.LocalGain,
     },
 
     'B16': {
       type: ModulationOutputTypes.ParameterModulation,
       output: ModulationOutputs.GlobalGain,
+    },
+
+    'OD1': {
+      type: ModulationOutputTypes.SoundModulation,
+      output: ModulationOutputs.Osc1Frequency,
+    },
+
+    'OD2': {
+      type: ModulationOutputTypes.SoundModulation,
+      output: ModulationOutputs.Osc2Frequency,
+    },
+
+    'OD3': {
+      type: ModulationOutputTypes.SoundModulation,
+      output: ModulationOutputs.Osc3Frequency,
+    },
+
+    'OD4': {
+      type: ModulationOutputTypes.SoundModulation,
+      output: ModulationOutputs.Osc4Frequency,
+    },
+
+    'OD5': {
+      type: ModulationOutputTypes.SoundModulation,
+      output: ModulationOutputs.Osc5Frequency,
+    },
+
+    'OD6': {
+      type: ModulationOutputTypes.SoundModulation,
+      output: ModulationOutputs.Osc6Frequency,
+    },
+
+    'OD7': {
+      type: ModulationOutputTypes.SoundModulation,
+      output: ModulationOutputs.Osc7Frequency,
     },
   },
 };

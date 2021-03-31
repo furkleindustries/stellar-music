@@ -2,8 +2,8 @@ import {
   defaultModulationRoutings,
 } from './defaultModulationRoutings';
 import {
-  getDataSelector,
-} from './getDataSelector';
+  getCarrier,
+} from './getCarrier';
 import {
   ModulationOutputTypes,
 } from './ModulationOutputTypes';
@@ -16,95 +16,186 @@ import {
   createPinkNoiseGenerator,
 } from './NoiseGenerators';
 import {
-  routeModulationToParam,
-} from './routeModulationToParam';
-import {
   routeModulationToSound,
 } from './routeModulationToSound';
 
 export const generateModulationNodes = ({
   audioContext,
-  data,
   nodes,
 }) => {
   const {
     destinations: defaultDests,
     modulators: defaultMods,
   } = defaultModulationRoutings;
+
+  const soundDestinations = {};
+  const parameterDestinations = {};
+  const externalDestinations = {};
   
-  const modulators = Object.keys(defaultMods).map((modIdx) => {
+  Object.keys(defaultDests).forEach((destIdx) => {
+    const currentDest = defaultDests[destIdx];
+    const destType = currentDest.type;
+    if (destType === ModulationOutputTypes.SoundModulation) {
+      soundDestinations[destIdx] = { ...currentDest };
+    } else if (destType === ModulationOutputTypes.ParameterModulation) {
+      parameterDestinations[destIdx] = { ...currentDest };
+    } else if (destType === ModulationOutputTypes.Extern) {
+      if (typeof currentDest.extern !== 'function') {
+        throw new Error(`Missing extern function from destination ${destIdx}.`);
+      }
+      
+      externalDestinations[destIdx] = { ...currentDest };
+    }
+  });
+  
+  const soundModulators = {};
+  const parameterModulators = {};
+  const externalModulators = {};
+
+  Object.keys(defaultMods).forEach((modIdx) => {
     const currentMod = defaultMods[modIdx];
-    currentMod.id = modIdx;
     const modType = currentMod.type;
-    let node = null;
-    if (defaultMods[modIdx].type === ModulationTypes.ConstantSource) {
-      const constantSource = audioContext.createConstantSource();
-      constantSource.offset.value = -1;
-      node = constantSource;
+    if (modIdx.slice(0, 2) === 'OM') {
+      const frequencyModulator = audioContext.createConstantSource();
+      frequencyModulator.offset.automationRate = 'k-rate';
+      frequencyModulator.offset.value = 440;
+
+      const amplitudeModulator = audioContext.createConstantSource();
+      amplitudeModulator.offset.value = 0;
+
+      const oscNodeGroup = nodes.SoundOscillators[Number(modIdx[modIdx.length - 1]) - 1];
+
+      soundModulators[modIdx] = {
+        carrier: oscNodeGroup,
+        amplitudeModulator,
+        frequencyModulator,
+        definition: currentMod,
+      };
+
+      routeModulationToSound(soundModulators[modIdx]);
+    } else if (defaultMods[modIdx].type === ModulationTypes.ConstantSource) {
+      const modulator = audioContext.createConstantSource();
+
+      const modContainer = {
+        carrier: null,
+        modulator,
+        definition: currentMod,
+      };
+
+      const carrier = getCarrier({
+        modContainer,
+        nodes,
+        parameterDestinations,
+      });
+
+      if (carrier) {
+        modulator.connect(carrier);
+      }
+
+      parameterModulators[modIdx] = {
+        ...modContainer,
+        carrier,
+      };
+
+      modulator.start();
     } else if (modType === ModulationTypes.Extern) {
-      console.log('TODO: implement Extern routing');
-      return null;
+      if (typeof currentMod.extern !== 'function') {
+        throw new Error(`Missing extern function from modulator ${modIdx}.`);
+      }
+
+      externalModulators[modIdx] = {
+        carrier: null,
+        modulator: currentMod.extern,
+        definition: currentMod,
+      };
+
+      const destIdx = currentMod.destination;
+      if (destIdx) {
+        if (destIdx in soundDestinations) {
+          routeModulationToSound({
+            destination: soundDestinations[destIdx],
+            modulator: externalModulators[modIdx],
+            nodes,
+          });
+        } else if (destIdx in parameterDestinations) {
+          routeModulationToSound({
+            destination: parameterDestinations[destIdx],
+            modulator: externalModulators[modIdx],
+            nodes,
+          });
+        }
+      }
     } else if (modType === ModulationTypes.LFO) {
-      const lfo = audioContext.createOscillator();
-      lfo.frequency.value = 1;
-      lfo.start();
-      node = lfo;
+      const carrier = audioContext.createOscillator();
+      carrier.start();
+
+      const gainNode = audioContext.createGain();
+      const amplitudeModulator = audioContext.createConstantSource();
+      amplitudeModulator.connect(gainNode.gain);
+      amplitudeModulator.start();
+
+      const frequencyModulator = audioContext.createConstantSource();
+      frequencyModulator.offset.automationRate = 'k-rate';
+      frequencyModulator.connect(lfo.frequency);
+      frequencyModulator.start();
+
+      parameterModulators[modIdx] = {
+        carrier,
+        amplitudeModulator,
+        frequencyModulator,
+        definition: currentMod,
+      };
     } else if (modType === ModulationTypes.WhiteNoise) {
-      node = createWhiteNoiseGenerator(audioContext);
+      const whiteNoiseGen = createWhiteNoiseGenerator(audioContext);
+      const noiseGain = audioContext.createGain();
+      whiteNoiseGen.connect(noiseGain);
+
+      const modulator = audioContext.createConstantSource();
+      modulator.connect(noiseGain.gain);
+      modulator.start();
+      
+      parameterModulators[modIdx] = {
+        carrier: noiseGain,
+        modulator,
+        definition: currentMod,
+      };
     } else if (modType === ModulationTypes.BrownNoise) {
-      node = createBrownNoiseGenerator(audioContext);
+      const brownNoiseGen = createBrownNoiseGenerator(audioContext);
+      const noiseGain = audioContext.createGain();
+      brownNoiseGen.connect(noiseGain);
+      
+      const modulator = audioContext.createConstantSource();
+      modulator.connect(noiseGain.gain);
+      modulator.start();
+
+      parameterModulators[modIdx] = {
+        carrier: noiseGain,
+        modulator,
+        definition: currentMod,
+      };
     } else if (modType === ModulationTypes.PinkNoise) {
-      node = createPinkNoiseGenerator(audioContext);
-    }
+      const pinkNoiseGen = createPinkNoiseGenerator(audioContext);
+      const noiseGain = audioContext.createGain();
+      pinkNoiseGen.connect(noiseGain);
 
-    return {
-      ...currentMod,
-      node,
-    };
-  }).filter(Boolean);
+      const modulator = audioContext.createConstantSource();
+      modulator.connect(noiseGain.gain);
+      modulator.start();
 
-  const destinations = Object.keys(defaultDests).map((destIdx, listIdx) => {
-    const destination = defaultDests[destIdx];
-    destination.id = destIdx;
-    const modulator = modulators[listIdx];
-
-    if (!destination ||
-      !destination.output ||
-      !modulator ||
-      modulator.type === ModulationTypes.Extern)
-    {
-      return null;
-    }
-
-     if (destination.type === ModulationOutputTypes.ParameterModulation ||
-      destination.type === ModulationOutputTypes.Extern)
-    {
-      const dataSelector = getDataSelector({
-        data,
-        destination,
+      parameterModulators[modIdx] = {
+        carrier: noiseGain,
         modulator,
-      });
-
-      routeModulationToParam({
-        data,
-        dataSelector,
-        modulator,
-        destination,
-        nodes,
-      });
-    } else if (destination.type === ModulationOutputTypes.Sound) {
-      routeModulationToSound({
-        modulator,
-        destination,
-        nodes,
-      });
+        definition: currentMod,
+      };
     }
-
-    return destination;
-  }).filter(Boolean);
+  });
 
   return {
-    modulators,
-    destinations,
+    soundModulators,
+    soundDestinations,
+    parameterModulators,
+    parameterDestinations,
+    externalModulators,
+    externalDestinations,
   };
 };

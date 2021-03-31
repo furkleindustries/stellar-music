@@ -18,10 +18,7 @@ export const AudioProvider = ({ children }) => {
   return (
     <ReactAudioContext.Provider value={audioCtx}>
       <ModulationContext.Provider value={modulationState}>
-        {React.cloneElement(
-          children,
-          { registerModulationNodes: setModulationState },
-        )}
+        {children}
       </ModulationContext.Provider>
     </ReactAudioContext.Provider>
   );

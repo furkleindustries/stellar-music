@@ -1,9 +1,9 @@
 import {
+  initSoundGraph,
+} from '../WebAudio/SoundNodes/initSoundGraph';
+import {
   ModMatrix,
 } from '../ModMatrix';
-import {
-  Oscillators,
-} from '../Oscillators';
 import {
   PlayingContext,
 } from '../WebAudio/PlayingContext';
@@ -13,48 +13,61 @@ import {
 
 import React from 'react';
 
-export const PlayerPiano = (props) => {
-  const {
-    dataPromise,
-    defaults = {},
-    normalizer,
-  } = (props || { defaults: {} });
-
+export const PlayerPiano = ({
+  dataPromise,
+  normalizer,
+}) => {
   if (!dataPromise) {
     return null;
   }
 
   const [ loaded, setLoaded ] = React.useState(false);
-  const [ data, setData ] = React.useState(null);
+  let [ data, setData ] = React.useState(null);
 
   const audioContext = React.useContext(ReactAudioContext);
-  if (!loaded) {
-    if (audioContext.state === 'suspended') {
-      audioContext.resume();
-    }
-  
-    dataPromise.then(
-      (response) => {
-        const normalized = normalizer(response);
-        setData(normalized);
-        setLoaded(true);
-      },
+  React.useEffect(() => {
+    if (!loaded) {
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+    
+      dataPromise.then(
+        (response) => {
+          const normalized = normalizer(response);
+          data = normalized;
+          const getData = () => data;
 
-      (err) => {
-        console.error(err);
-      },
-    );
-  }
+          setData(normalized);
+          setLoaded(true);
+  
+          const destroy = initSoundGraph({
+            audioContext,
+            getData,
+            waveforms: [
+              'square',
+              'sawtooth',
+              'triangle',
+              'sine',
+              'triangle',
+              'sawtooth',
+              'square',
+            ],
+          });
+        },
+  
+        (err) => {
+          console.error(err);
+        },
+      );
+    }
+  }, []);
 
   return (
     <div>
       <PlayingContext.Consumer>
         {(playing) => (
           playing && loaded ?
-            <Oscillators
-              defaults={defaults}
-              data={data}
-            /> :
+            <p>Now playing!</p> :
             null
         )}
       </PlayingContext.Consumer>

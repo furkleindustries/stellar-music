@@ -1,119 +1,117 @@
 import {
-  delayFractions,
-} from '../SoundNodes/delayFractions';
+  beatFractions,
+} from '../beatFractions';
+import {
+  getBpm,
+} from './getBpm';
 import {
   ModulationOutputs,
  } from './ModulationOutputs';
-import {
-  ModulationOutputTypes,
-} from './ModulationOutputTypes';
 
- /* data:
- {
-  dewpointC,
-  feelslikeC,
-  humidity,
-  isDay,
-  precipMM,
-  spressureMB,
-  windGustKPH,
-  windSpeedKPH,
-  windDir,
-}
-*/
-
-const bpmDefault = 120;
-
-export const getDataSelector = ({
-  destination: {
-    output,
-    type,
+export const getDataSelector = (
+  {
+    definition: { destination: destIdx },
   },
-}) => {
-  if (type === ModulationOutputTypes.Sound) {
-    return () => null;
+
+  destinations,
+) => {
+  let dataSelector = (data) => data;
+
+  const dest = destinations[destIdx];
+  if (!dest || !dest.output) {
+    return () => 0;
   }
 
-  let dataSelector = ({ data }) => data;
-
-  /* 60 / getDataSelector({
-        data,
-        destination: {
-          output: ModulationOutputs.Bpm,
-          type: ModulationOutputTypes.ParameterModulation,
-        },
-      })({ data }) * 0.125 */
+  const { output } = dest;
   if (output === ModulationOutputs.Attack) {
-    dataSelector = ({ data }) => {
-      return 1;
+    dataSelector = ({ }) => {
+      return 0.0625;
+    };
+  } else if (output === ModulationOutputs.Decay) {
+    dataSelector = () => {
+      return 0.25;
+    };
+  } else if (output === ModulationOutputs.Sustain) {
+    dataSelector = () => {
+      return 0.125;
+    };
+  } else if (output === ModulationOutputs.Release) {
+    dataSelector = () => {
+      return 0.250;
     };
   } else if (output === ModulationOutputs.Bpm) {
     // Offset for lowest recorded temperature in human history to ensure log(x)
     // won't produce NaN
-    dataSelector = ({ data: { feelslikeC } }) => {
-      let bpm = Math.floor(Math.log((feelslikeC + 90) / 2) * 20);
-      if (bpm) {
-        bpm = Math.min(180, Math.max(bpm, 45));
-      } else {
-        bpm = bpmDefault;
-      }
-
-      return bpm;
+    dataSelector = (data) => {
+      return getBpm(data);
     };
   } else if (output === ModulationOutputs.Compressor) {
-    dataSelector = ({ data }) => {
+    dataSelector = () => {
       return 1;
     };
   } else if (output === ModulationOutputs.DelayTime) {
-    dataSelector = ({ data }) => {
-      return delayFractions['1/16'] * 3;
+    // Should vary roughly from [300kWh/m^2, 4000kWh/m^2]
+    dataSelector = ({ solradWM2 = 300 }) => {
+      return [
+        beatFractions['1/3'],
+        beatFractions['1/4'],
+        beatFractions['1/6'],
+        beatFractions['1/8'],
+        beatFractions['1/12'],
+        beatFractions['1/16'],
+        beatFractions['1/24'],
+        beatFractions['1/32'],
+        beatFractions['1/48'],
+        beatFractions['1/64'],
+      ][Math.round(Math.log2(Math.min(4000, Math.max(300, solradWM2) - 296)) - 2)];
     };
   } else if (output === ModulationOutputs.DelayFeedback) {
-    dataSelector = ({ data }) => {
-      return 0.125;
+    dataSelector = ({ spressureMB = 1050 }) => {
+      // Pressure above 1050mB can be ignored.
+      // Should vary roughly from [0, 0.67]
+      return Math.pow(1052.75 - spressureMB + 50, 1.25) / 9000;
     };
   } else if (output === ModulationOutputs.DelayFilter) {
-    dataSelector = ({ data }) => {
-      return 0.5;
+    dataSelector = ({ spressureMB = 1050 }) => {
+      // Pressure above 1050mB can be ignored.
+      // Should vary roughly from [220hz, 8000hz]
+      return 8000 - Math.pow(1052.75 - spressureMB, 1.2964777);
     };
   } else if (output === ModulationOutputs.DelayGain) {
-    dataSelector = ({ data }) => {
+    dataSelector = () => {
       return 0.25;
     };
   } else if (output === ModulationOutputs.Distortion) {
-    dataSelector = ({ data: { humidity } }) => {
-      return Math.min(1, Math.max(Number(humidity) || 0));
+    dataSelector = ({ humidity }) => {
+      return Math.min(1, Math.max(Number(humidity) || 0, 0));
     };
   } else if (output === ModulationOutputs.GlobalFilter) {
-    dataSelector = ({ data: { windSpeedKPH } }) => {
-      return Math.max(220, 21000 - Math.log(Math.pow(windSpeedKPH + 2, 1.75)) * 2650);
+    dataSelector = ({ windSpeedKPH }) => {
+      // Normalize against ~250kph. If it's higher, people are dying there,
+      // and I'm not tracking that far.
+      const windSpeed = Math.min(250, windSpeedKPH);
+      return Math.max(220, 21000 - Math.log(Math.pow(windSpeed + 2, 1.75)) * 2650);
     };
   } else if (output === ModulationOutputs.GlobalGain) {
-    dataSelector = ({ data }) => {
+    dataSelector = () => {
       return 0.25;
     };
   } else if (output === ModulationOutputs.LocalGain) {
-    dataSelector = ({ data }) => {
-      return 1;
-    };
-  } else if (output === ModulationOutputs.Release) {
-    dataSelector = ({ data }) => {
+    dataSelector = () => {
       return 1;
     };
   } else if (output === ModulationOutputs.ReverbGain) {
-    dataSelector = ({ data: { precipMM } }) => {
+    dataSelector = ({ precipMM }) => {
       return Math.min(1, Math.max(0.125 * Math.log(precipMM + 1), 0.0613)) || 0.5;
     };
   } else if (output === ModulationOutputs.ReverbMorph) {
-    dataSelector = ({ data }) => {
+    dataSelector = () => {
       return 0;
     };
   } else if (output === ModulationOutputs.WaveformMorph) {
-    dataSelector = ({ data }) => {
+    dataSelector = () => {
       return 0;
     };
-  } else  {
-    throw new Error('Invalid input provided to getDataSelector.');
   }
 
   return dataSelector;

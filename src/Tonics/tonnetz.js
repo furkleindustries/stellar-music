@@ -1,7 +1,9 @@
-module.exports = {};
+import {
+  Note,
+} from '@tonaljs/tonal';
 
 // structure is 7x6
-const tonnetz = [
+export const tonnetz = [
   [
     'G',
     'D',
@@ -65,11 +67,11 @@ const tonnetz = [
 
 // When wrapped around itself in both directions, the Tonnetz becomes a torus
 // and may be navigated around indefinitely through PLR/NSH transformations.
-const getTonnetzNode = (arg) => {
+export const getTonnetzNode = (arg, octave = 3) => {
   let safeX;
   let safeY;
   if (typeof arg === 'string') {
-    const found = findTonnetzNodeByNote(arg);
+    const found = findTonnetzNodeByNote(arg, octave);
     if (!found) {
       throw new Error(`Invalid argument provided to getTonnetzNode. ${arg}`);
     }
@@ -100,10 +102,12 @@ const getTonnetzNode = (arg) => {
     safeX = safeX % tonnetz[safeY].length;
   }
 
-  const note = tonnetz[safeY][safeX] || null;
+  let note = tonnetz[safeY][safeX] || null;
   if (!note) {
     throw new Error(`Invalid argument to getTonnetzNode. ${arg}`);
   }
+
+  note += octave;
 
   return {
     note,
@@ -112,51 +116,108 @@ const getTonnetzNode = (arg) => {
   };
 };
 
-const findTonnetzNodeByNote = (note) => {
+export const findTonnetzNodeByNote = (note, octave = 3) => {
   for (let y = tonnetz.length - 1; y >= 0; y -= 1) {
     const found = tonnetz[y].findIndex((val) => val === note);
     if (found !== -1) {
-      return getTonnetzNode([ found, y ]);
+      return getTonnetzNode([ found, y ], octave);
     }
   }
 
   return null;
 };
 
-const getMajorTriad = (arg) => {
-  const node = convertArgToNode(arg);
+const keys = [
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
+];
+
+export const getMajorTriad = (arg) => {
+  const root = convertArgToNode(arg);
+  root.note = Note.simplify(root.note);
+  const octave = Number(root.note[root.note.length - 1]) || 3;
+
+  const overtoneOne = getTonnetzNode([ root.x, root.y + 1 ], octave);
+  let ot1Note = overtoneOne.note;
+  let ot1Over = false;
+  if (keys.indexOf(ot1Note) <= keys.indexOf(root.note)) {
+    ot1Over = true;
+    overtoneOne.note = Note.simplify(overtoneOne.note.slice(0, -1) + (octave + 1));
+  }
+
+  const overtoneTwo = getTonnetzNode([ root.x + 1, root.y ], octave);
+  let ot2Note = overtoneTwo.note;
+  if (ot1Over || keys.indexOf(ot2Note) <= keys.indexOf(root.note)) {
+    overtoneTwo.note = Note.simplify(overtoneTwo.note.slice(0, -1) + (octave + 1));
+  }
+
+  const notes = [
+    root,
+    overtoneOne,
+    overtoneTwo
+  ];
+
+  const type = 'major';
+
   return {
-    type: 'major',
-    rootNote: node,
-    nonRootNotes: [
-      getTonnetzNode([ node.x, node.y + 1 ]),
-      getTonnetzNode([ node.x + 1, node.y ]),
-    ],
+    type,
+    notes,
   };
 };
 
+export const getMinorTriad = (arg) => {
+  const root = convertArgToNode(arg);
+  root.note = Note.simplify(root.note);
 
-const getMinorTriad = (arg) => {
-  const node = convertArgToNode(arg);
+  const octave = Number(root.notes[0][root.notes[0].length - 1]) || 3;
+
+  const overtoneOne = getTonnetzNode([ root.x + 1, root.y - 1 ], octave);
+  let ot1Note = overtoneOne.note;
+  let ot1Over = false;
+  if (keys.indexOf(ot1Note) <= keys.indexOf(root.note)) {
+    ot1Over = true;
+    overtoneOne.note = Note.simplify(overtoneOne.note.slice(0, -1) + (octave + 1));
+  }
+
+  const overtoneTwo = getTonnetzNode([ root.x + 1, root.y ], octave);
+  let ot2Note = overtoneTwo.note;
+  if (ot1Over || keys.indexOf(ot2Note) <= keys.indexOf(root.note)) {
+    overtoneTwo.note = Note.simplify(overtoneTwo.note.slice(0, -1) + (octave + 1));
+  }
+
+  const notes = [
+    root,
+    overtoneOne,
+    overtoneTwo,
+  ];
+
+  const type = 'minor';
+
   return {
-    type: 'minor',
-    rootNote: node,
-    nonRootNotes: [
-      getTonnetzNode([ node.x + 1, node.y - 1 ]),
-      getTonnetzNode([ node.x + 1, node.y ]),
-    ],
+    type,
+    notes,
   };
 };
 
-const convertArgToNode = (node) => {
+export const convertArgToNode = (node, octave = 3) => {
   if (Array.isArray(node)) {
-    return getTonnetzNode(node);
+    return getTonnetzNode(node, octave);
   }
 
   return node;
 };
 
-const pTransform = ({
+export const pTransform = ({
   type,
   rootNote,
 }) => {
@@ -168,7 +229,7 @@ const pTransform = ({
 };
 
 
-const lTransform = ({
+export const lTransform = ({
   type,
   rootNote: {
     x,
@@ -182,7 +243,7 @@ const lTransform = ({
   return getMajorTriad([ x - 1, y ]);
 };
 
-const rTransform = ({
+export const rTransform = ({
   type,
   rootNote: {
     x,
@@ -196,7 +257,7 @@ const rTransform = ({
   return getMajorTriad([ x + 1, y ]);
 };
 
-const nTransform = ({
+export const nTransform = ({
   type,
   rootNote: {
     x,
@@ -210,7 +271,7 @@ const nTransform = ({
   return getMajorTriad([ x + 1, y - 1 ])
 };
 
-const sTransform = ({
+export const sTransform = ({
   type,
   rootNote: {
     x,
@@ -224,7 +285,7 @@ const sTransform = ({
   return getMajorTriad([ x, y + 2 ]);
 };
 
-const hTransform = (
+export const hTransform = (
   {
     type,
     rootNote: {
@@ -241,15 +302,3 @@ const hTransform = (
 
   return getMinorTriad([ x + 1 * direction, y + 3 * direction ]);
 };
-
-module.exports.tonnetz = tonnetz;
-module.exports.getTonnetzNode = getTonnetzNode;
-module.exports.findTonnetzNodeByNote = findTonnetzNodeByNote;
-module.exports.getMajorTriad = getMajorTriad;
-module.exports.getMinorTriad = getMinorTriad;
-module.exports.pTransform = pTransform;
-module.exports.lTransform = lTransform;
-module.exports.rTransform = rTransform;
-module.exports.nTransform = nTransform;
-module.exports.sTransform = sTransform;
-module.exports.hTransform = hTransform;

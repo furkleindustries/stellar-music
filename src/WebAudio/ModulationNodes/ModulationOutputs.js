@@ -1,6 +1,8 @@
 export const ModulationOutputs = {
   Bpm: 'Bpm',
   Attack: 'Attack',
+  Decay: 'Decay',
+  Sustain: 'Sustain',
   Release: 'Release',
   GlobalFilter: 'GlobalFilter',
   ReverbGain: 'ReverbGain',
@@ -14,4 +16,11 @@ export const ModulationOutputs = {
   Compressor: 'Compressor',
   LocalGain: 'LocalGain',
   GlobalGain: 'GlobalGain',
+  Osc1Frequency: 'Osc1Frequency',
+  Osc2Frequency: 'Osc2Frequency',
+  Osc3Frequency: 'Osc3Frequency',
+  Osc4Frequency: 'Osc4Frequency',
+  Osc5Frequency: 'Osc5Frequency',
+  Osc6Frequency: 'Osc6Frequency',
+  Osc7Frequency: 'Osc7Frequency',
 };

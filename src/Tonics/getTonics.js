@@ -12,11 +12,12 @@ import {
 } from './tonnetz';
 
 export const getFirstTonic = (
-  type = Math.random() > 0.75 ? 'minor' : 'major',
+  type = 'major',
+  octave = 3,
   x = Math.floor(Math.random() * 6),
   y = Math.floor(Math.random() * 7),
 ) => {
-  const tonnetzNode = getTonnetzNode([ x, y ]);
+  const tonnetzNode = getTonnetzNode([ x, y ], octave);
   if (type === 'major') {
     return getMajorTriad(tonnetzNode);
   }
@@ -26,11 +27,12 @@ export const getFirstTonic = (
 
 export const getNextTonic = (
   arg,
-  transformations = [ '+1+0' ],
+  octave = 3,
+  transformations = [ '+0+1' ],
 ) => {
   let nextChord = arg;
-  let currentX = nextChord.rootNote.x;
-  let currentY = nextChord.rootNote.y;
+  let currentX = nextChord.notes[0].x;
+  let currentY = nextChord.notes[0].y;
   for (const trans of transformations) {
     if (new RegExp(/^[+-]\d[+-]\d$/i).test(trans)) {
       const split = trans.split('');
@@ -60,7 +62,7 @@ export const getNextTonic = (
         }
       }
 
-      const node = getTonnetzNode([ currentX, currentY ]);
+      const node = getTonnetzNode([ currentX, currentY ], octave);
       if (nextChord.type === 'major') {
         nextChord = getMajorTriad(node);
       } else {
@@ -68,28 +70,28 @@ export const getNextTonic = (
       }
     } else if (trans === 'p') {
       nextChord = pTransform(nextChord);
-      currentX = nextChord.rootNote.x;
-      currentY = nextChord.rootNote.y;
+      currentX = nextChord.notes[0].x;
+      currentY = nextChord.notes[0].y;
     } else if (trans === 'l') {
       nextChord = lTransform(nextChord);
-      currentX = nextChord.rootNote.x;
-      currentY = nextChord.rootNote.y;
+      currentX = nextChord.notes[0].x;
+      currentY = nextChord.notes[0].y;
     } else if (trans === 'r') {
       nextChord = rTransform(nextChord);
-      currentX = nextChord.rootNote.x;
-      currentY = nextChord.rootNote.y;
+      currentX = nextChord.notes[0].x;
+      currentY = nextChord.notes[0].y;
     } else if (trans === 'n') {
       nextChord = nTransform(nextChord);
-      currentX = nextChord.rootNote.x;
-      currentY = nextChord.rootNote.y;
+      currentX = nextChord.notes[0].x;
+      currentY = nextChord.notes[0].y;
     } else if (trans === 's') {
       nextChord = sTransform(nextChord);
-      currentX = nextChord.rootNote.x;
-      currentY = nextChord.rootNote.y;
+      currentX = nextChord.notes[0].x;
+      currentY = nextChord.notes[0].y;
     } else if (trans === 'h') {
       nextChord = hTransform(nextChord);
-      currentX = nextChord.rootNote.x;
-      currentY = nextChord.rootNote.y;
+      currentX = nextChord.notes[0].x;
+      currentY = nextChord.notes[0].y;
     } else {
       throw new Error('Invalid input to getNextTonic.');
     }

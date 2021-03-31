@@ -137,8 +137,6 @@ const selectedChordProgs = chordProgressions.slice(chordProgsRand);
 const pitchNumRand = Math.floor(Math.random() * 16);
 const selectedPitchNums = Object.keys(pitchClasses).slice(pitchNumRand, pitchNumRand + matrixSize);
 
-console.log(selectedTonics, selectedChordProgs, selectedPitchNums);
-
 // all notes quarter notes for now
 const duration = '4';
 

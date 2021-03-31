@@ -25,12 +25,22 @@ import {
 import {
   ModulationOutputs,
 } from '../ModulationNodes/ModulationOutputs';
+import {
+  setModulationValues,
+} from './setModulationValues';
 
 export const generateAudioGraphAndCallbacks = ({
   audioContext,
-  data,
-  registerModulation,
+  getData,
   waveforms,
+  getBeatsInBar,
+  getOctaveBarLength,
+  getTonicBarLength,
+  getOctaveChangeChance,
+  getRootOctaveMax,
+  getRootOctaveMin,
+  getScaleType,
+  getOctave,
 }) => {
   const globalGain = generateGlobalGain(
     audioContext,
@@ -79,6 +89,8 @@ export const generateAudioGraphAndCallbacks = ({
   );
 
   let reverbs = [];
+  const reverbGain = audioContext.createGain();
+  reverbGain.connect(globalFilter);
   createReverbs(audioContext).then((convolvers) => {
     reverbs.push(...convolvers.map((convolver) => ({
       convolver,
@@ -94,45 +106,76 @@ export const generateAudioGraphAndCallbacks = ({
 
       convolver.connect(convolverGain);
 
-      convolverGain.connect(globalFilter);
+      convolverGain.connect(reverbGain);
     });
   });
 
   const nodes = {
     [ModulationOutputs.GlobalGain]: globalGain,
     [ModulationOutputs.GlobalFilter]: globalFilter,
-    [ModulationOutputs.WaveformMorph]: waveShaper,
+    [ModulationOutputs.Distortion]: waveShaper,
     [ModulationOutputs.Compressor]: compressor,
     [ModulationOutputs.DelayTime]: delay,
     [ModulationOutputs.DelayFilter]: delayFilter,
     [ModulationOutputs.DelayGain]: delayGain,
     [ModulationOutputs.DelayFeedback]: delayFeedback,
-    SoundOscillators: soundOscillators,
+    [ModulationOutputs.ReverbGain]: reverbGain,
     Reverbs: reverbs,
+    SoundOscillators: soundOscillators,
   };
 
   const {
-    modulators,
-    destinations,
+    soundModulators,
+    soundDestinations,
+    parameterModulators,
+    parameterDestinations,
+    externalModulators,
+    externalDestinations,
   } = generateModulationNodes({
     audioContext,
-    data,
-    registerModulation,
     nodes,
   });
 
-  return {
-    update: () => {
-      console.log('updating');
-    },
+  console.log(parameterModulators);
 
-    getBpm: () => {
-      const destIdx = destinations.find(({ output }) => output === ModulationOutputs.Bpm).id;
-      return modulators.find(({ destination }) => destination === destIdx).node.value;
+  return {
+    update: ({
+      barsCounter,
+      beatsCounter,
+      chord,
+      getData,
+    }) => {
+      setModulationValues({
+        audioContext,
+        barsCounter,
+        beatsCounter,
+        chord,
+        getData,
+        getBeatsInBar,
+        getOctaveBarLength,
+        getTonicBarLength,
+        getOctaveChangeChance,
+        getRootOctaveMax,
+        getRootOctaveMin,
+        getScaleType,
+        getOctave,
+        soundModulators,
+        soundDestinations,
+        parameterModulators,
+        parameterDestinations,
+        externalModulators,
+        externalDestinations,
+        nodes,
+      });
     },
 
     destroy: () => {
-
+      destroyAudioGraph({
+        audioContext,
+        nodes,
+        parameterModulators,
+        soundModulators,
+      });
     },
   };
 };

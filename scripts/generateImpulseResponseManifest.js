@@ -4,7 +4,7 @@ const {
 } = require('fs');
 const path = require('path');
 
-const dirPath = path.join(__dirname, '..', 'sounds', 'impulse-responses');
+const dirPath = path.join(__dirname, '..', 'dist', 'sounds', 'impulse-responses');
 const writePath = path.join(__dirname, '..', 'impulse-response-manifest.js');
 
 const getLicense = () => {
@@ -28,7 +28,7 @@ readdir(dirPath, (err, filePathList) => {
   filePathList.forEach((filePath, idx) => {
     const parsed = path.parse(filePath);
     if (parsed.ext === '.wav') {
-      manifest[parsed.name] = path.relative(__dirname, path.join(dirPath, filePath)).replace(/\\/g, '/');
+      manifest[parsed.name] = path.relative(path.join(__dirname, '..', 'dist'), path.join(dirPath, filePath)).replace(/\\/g, '/');
     }
   });
 

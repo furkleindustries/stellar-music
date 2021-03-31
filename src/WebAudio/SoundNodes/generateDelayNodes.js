@@ -1,6 +1,6 @@
 import {
-  delayFractions,
-} from './delayFractions';
+  beatFractions,
+} from '../beatFractions';
 
 export const generateDelayNodes = (
   audioContext,
@@ -14,12 +14,15 @@ export const generateDelayNodes = (
 
   // Connect the delay filter node to the delay mix node.
   const delayFilter = audioContext.createBiquadFilter();
+  delayFilter.frequency.automationRate = 'k-rate';
   delayFilter.type = 'bandpass';
+  delayFilter.frequency.value = 1;
   delayFilter.connect(delayGain);
 
   // Connect the delay line node to the delay filter node.
-  const maximumDelayTime = minimumBpm / 60 * delayFractions['4_bars'];
+  const maximumDelayTime = minimumBpm / 60 * beatFractions['4_bars'];
   const delay = audioContext.createDelay(maximumDelayTime);
+  delay.delayTime.automationRate = 'k-rate';
   delay.connect(delayFilter);
 
   // Send the output from the delay filter to the feedback gain node.

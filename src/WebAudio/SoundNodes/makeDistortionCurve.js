@@ -12,7 +12,7 @@ export const makeDistortionCurve = (amount) => {
 
   for ( ; i < n_samples; ++i ) {
     x = i * 2 / n_samples - 1;
-    curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
+    curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
   }
 
   return curve;

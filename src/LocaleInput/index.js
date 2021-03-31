@@ -4,7 +4,10 @@ import {
 
 import React from 'react';
 
-export const LocaleInput = ({ onChange }) => {
+export const LocaleInput = ({
+  onChange,
+  onKeyPress,
+}) => {
   const locale = React.useContext(LocaleContext);
 
   return (
@@ -14,6 +17,7 @@ export const LocaleInput = ({ onChange }) => {
         type="text"
         placeholder={`e.g. "paris, fr", "new york, ny", "90210", etc.`}
         onChange={onChange}
+        onKeyPress={onKeyPress}
         defaultValue={locale}
       />
     </div>

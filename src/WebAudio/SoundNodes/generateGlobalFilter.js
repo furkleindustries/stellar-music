@@ -4,6 +4,8 @@ export const generateGlobalFilter = (
   type = 'lowpass',
 ) => {
   const globalFilter = audioContext.createBiquadFilter();
+  globalFilter.frequency.automationRate = 'k-rate';
+  globalFilter.frequency.value = 1;
   globalFilter.type = type;
   globalFilter.connect(globalGain);
 

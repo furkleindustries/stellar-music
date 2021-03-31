@@ -7,8 +7,8 @@ export const majorKeyBlueBoxes = [
       modulations: [ 'm' ],
       extendedChords: [ '7', '9', 'b9' ],
       chances: {
-        up: 0.125,
         down: 0.750,
+        up: 0.125,
         extend: 0.125,
         blue: 0.750,
         green: 0.250,
@@ -24,8 +24,8 @@ export const majorKeyBlueBoxes = [
       modulations: [ 'm' ],
       extendedChords: [ 'm7' ],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -39,8 +39,8 @@ export const majorKeyBlueBoxes = [
       modulations: [],
       extendedChords: [ '7', '9', '11', '13', 'sus' ],
       chances: {
-        up: 0.125,
         down: 0.750,
+        up: 0.125,
         extend: 0.125,
         blue: 0.750,
         green: 0.250,
@@ -56,8 +56,8 @@ export const majorKeyBlueBoxes = [
       modulations: [],
       extendedChords: [ '6', 'M7', 'm', 'm6' ],
       chances: {
-        up: 0.125,
         down: 0.750,
+        up: 0.125,
         extend: 0.125,
         blue: 0.750,
         green: 0.250,
@@ -71,8 +71,8 @@ export const majorKeyBlueBoxes = [
       modulations: [ 'm' ],
       extendedChords: [ 'm7', 'm9' ],
       chances: {
-        up: 0.125,
         down: 0.750,
+        up: 0.125,
         extend: 0.125,
         blue: 0.750,
         green: 0.250,
@@ -88,8 +88,8 @@ export const majorKeyBlueBoxes = [
       modulations: [],
       extendedChords: [ '7', '9', '11', '13', 'sus' ],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -103,8 +103,8 @@ export const majorKeyBlueBoxes = [
       modulations: [ 'm' ],
       extendedChords: [ 'm7', 'm9' ],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -120,8 +120,8 @@ export const majorKeyBlueBoxes = [
       modulations: [],
       extendedChords: [ '2', '6', 'M7', 'M9', 'sus' ],
       chances: {
-        up: 0.375,
         down: 0.375,
+        up: 0.375,
         extend: 0.250,
         blue: 0.750,
         green: 0.250,
@@ -355,8 +355,8 @@ export const minorKeyBlueBoxes = [
       modulations: [ 'dim '],
       extendedChords: [],
       chances: {
-        up: 0.250,
         down: 0.750,
+        up: 0.250,
         extend: 0.000,
         blue: 0.750,
         green: 0.250,
@@ -367,11 +367,12 @@ export const minorKeyBlueBoxes = [
       // viiº/2
       scalePosition: 6,
       mapPosition: [ 1, 0 ],
-      modulations: [ 'dim', '/2' ],
+      // TODO: add inverted chord handling
+      modulations: [ 'dim', /* '/2' */ ],
       extendedChords: [],
       chances: {
-        up: 0.250,
         down: 0.750,
+        up: 0.250,
         extend: 0.000,
         blue: 0.750,
         green: 0.250,
@@ -387,8 +388,8 @@ export const minorKeyBlueBoxes = [
       modulations: [ 'maj', 'b', 'aug' ],
       extendedChords: [],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -399,11 +400,11 @@ export const minorKeyBlueBoxes = [
     {
       scalePosition: 0,
       mapPosition: [ 1, 1 ],
-      modulations: [ '/b3' ],
+      modulations: [ /* '/b3' */ ],
       extendedChords: [],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -417,8 +418,8 @@ export const minorKeyBlueBoxes = [
       modulations: [ 'maj' ],
       extendedChords: [ '7', 'b9', 'b13', 'sus' ],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -434,8 +435,8 @@ export const minorKeyBlueBoxes = [
       modulations: [],
       extendedChords: [ 'm6', 'm7', 'm9' ],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -449,8 +450,8 @@ export const minorKeyBlueBoxes = [
       modulations: [ 'maj', 'b', '/4' ],
       extendedChords: [],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -466,8 +467,8 @@ export const minorKeyBlueBoxes = [
       modulations: [ 'maj '],
       extendedChords: [ '7', 'b9', 'b13', 'sus' ],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -481,8 +482,8 @@ export const minorKeyBlueBoxes = [
       modulations: [ 'dim' ],
       extendedChords: [],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -493,11 +494,11 @@ export const minorKeyBlueBoxes = [
       // viiº/2
       scalePosition: 6,
       mapPosition: [ 2, 3 ],
-      modulations: [ 'dim', '/2' ],
+      modulations: [ 'dim', /* '/2' */ ],
       extendedChords: [],
       chances: {
-        up: 0.167,
         down: 0.667,
+        up: 0.167,
         extend: 0.167,
         blue: 0.750,
         green: 0.250,
@@ -513,8 +514,8 @@ export const minorKeyBlueBoxes = [
       modulations: [],
       extendedChords: [ '2', 'sus' ],
       chances: {
-        up: 0.375,
         down: 0.375,
+        up: 0.375,
         extend: 0.250,
         blue: 0.750,
         green: 0.250,

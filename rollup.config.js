@@ -3,6 +3,7 @@ import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import replace from '@rollup/plugin-replace';
 import resolve from '@rollup/plugin-node-resolve';
+import serve from 'rollup-plugin-serve';
 
 export default {
   input: 'index.js',
@@ -32,5 +33,7 @@ export default {
     babel({ babelHelpers: 'bundled' }),
 
     commonjs(),
+
+    process.env.NODE_ENV === 'development' ? serve('dist') : null,
   ],
 };
